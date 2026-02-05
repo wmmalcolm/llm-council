@@ -1,7 +1,7 @@
 [project]
-name = "llm-council"
+name = "llm-ai-board-of-directors"
 version = "0.1.0"
-description = "Your LLM Council"
+description = "Your LLM AI Board of Directors"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

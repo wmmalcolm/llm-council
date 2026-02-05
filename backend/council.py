@@ -15,10 +15,27 @@ async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
     Returns:
         List of dicts with 'model' and 'response' keys
     """
-    messages = [{"role": "user", "content": user_query}]
+    # Build per-model messages so each Director gets its Board role prompt
+    messages_by_model: Dict[str, List[Dict[str, str]]] = {}
+    for model_id in COUNCIL_MODELS:
+        messages_by_model[model_id] = [
+            {"role": "system", "content": board_system_prompt(model_id)},
+            {"role": "user", "content": user_query},
+        ]
 
     # Query all models in parallel
-    responses = await query_models_parallel(COUNCIL_MODELS, messages)
+    responses = await query_models_parallel(COUNCIL_MODELS, messages_by_model)
+
+    # Format results
+    stage1_results = []
+    for model, response in responses.items():
+        if response is not None:  # Only include successful responses
+            stage1_results.append({
+                "model": model,
+                "response": response.get('content', '')
+            })
+
+    return stage1_results
 
     # Format results
     stage1_results = []
@@ -62,41 +79,19 @@ async def stage2_collect_rankings(
     ])
 
     ranking_prompt = f"""You are evaluating different responses to the following question:
+...
+    Now provide your evaluation and ranking:"""
 
-Question: {user_query}
-
-Here are the responses from different models (anonymized):
-
-{responses_text}
-
-Your task:
-1. First, evaluate each response individually. For each response, explain what it does well and what it does poorly.
-2. Then, at the very end of your response, provide a final ranking.
-
-IMPORTANT: Your final ranking MUST be formatted EXACTLY as follows:
-- Start with the line "FINAL RANKING:" (all caps, with colon)
-- Then list the responses from best to worst as a numbered list
-- Each line should be: number, period, space, then ONLY the response label (e.g., "1. Response A")
-- Do not add any other text or explanations in the ranking section
-
-Example of the correct format for your ENTIRE response:
-
-Response A provides good detail on X but misses Y...
-Response B is accurate but lacks depth on Z...
-Response C offers the most comprehensive answer...
-
-FINAL RANKING:
-1. Response C
-2. Response A
-3. Response B
-
-Now provide your evaluation and ranking:"""
-
-    messages = [{"role": "user", "content": ranking_prompt}]
+    # Build per-model messages with Board role prompts
+    messages_by_model: Dict[str, List[Dict[str, str]]] = {}
+    for model_id in COUNCIL_MODELS:
+        messages_by_model[model_id] = [
+            {"role": "system", "content": board_system_prompt(model_id)},
+            {"role": "user", "content": ranking_prompt},
+        ]
 
     # Get rankings from all council models in parallel
-    responses = await query_models_parallel(COUNCIL_MODELS, messages)
-
+    responses = await query_models_parallel(COUNCIL_MODELS, messages_by_model)
     # Format results
     stage2_results = []
     for model, response in responses.items():

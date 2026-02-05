@@ -2,12 +2,9 @@
  * API client for the LLM Council backend.
  */
 
-const API_BASE = '';  // Change from 'http://localhost:8001'
+const API_BASE = 'http://localhost:8001';  // was ''
 
 export const api = {
-  /**
-   * List all conversations.
-   */
   async listConversations() {
     const response = await fetch(`${API_BASE}/api/conversations`);
     if (!response.ok) {
@@ -16,15 +13,10 @@ export const api = {
     return response.json();
   },
 
-  /**
-   * Create a new conversation.
-   */
   async createConversation() {
     const response = await fetch(`${API_BASE}/api/conversations`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
     });
     if (!response.ok) {
@@ -33,30 +25,20 @@ export const api = {
     return response.json();
   },
 
-  /**
-   * Get a specific conversation.
-   */
   async getConversation(conversationId) {
-    const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}`
-    );
+    const response = await fetch(`${API_BASE}/api/conversations/${conversationId}`);
     if (!response.ok) {
       throw new Error('Failed to get conversation');
     }
     return response.json();
   },
 
-  /**
-   * Send a message in a conversation.
-   */
   async sendMessage(conversationId, content) {
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
       }
     );
@@ -66,21 +48,12 @@ export const api = {
     return response.json();
   },
 
-  /**
-   * Send a message and receive streaming updates.
-   * @param {string} conversationId - The conversation ID
-   * @param {string} content - The message content
-   * @param {function} onEvent - Callback function for each event: (eventType, data) => void
-   * @returns {Promise<void>}
-   */
   async sendMessageStream(conversationId, content, onEvent) {
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message/stream`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
       }
     );

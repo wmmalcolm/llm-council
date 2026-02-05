@@ -13,11 +13,9 @@ COUNCIL_MODELS = [
     # Grok (xAI)
     "x-ai/grok-4",
 
-    # Perplexity (placeholder – confirm exact model id in OpenRouter)
+    # Perplexity (perplexity/sonar-reasoning)
     "perplexity/sonar-pro",  # TODO: check OpenRouter docs for correct id
 
-    # Copilot (placeholder – only if exposed via OpenRouter)
-    "github/copilot-gpt-4o",  # TODO: adjust to actual id if/when available
 ]
 
 # Chairman model - synthesizes final response
